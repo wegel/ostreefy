@@ -22,3 +22,6 @@ jobs:
 
     - name: Build & Release base containers
       run: make release
+
+    - name: Build & Release example containers
+      run: make release-examples
