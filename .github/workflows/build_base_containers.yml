@@ -13,8 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Login to GitHub Container Registry
-      run: echo "${{ secrets.CONTAINER_REGISTRY_TOKEN }}" | docker login $(make get-registry) -u ${{ github.actor }} --password-stdin
+    - name: Login to the registry
+      run: aws ecr-public get-login-password | docker login --username AWS --password-stdin $(make get-registry)
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
 
     - name: Build & Release base containers
       run: make release

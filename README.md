@@ -8,7 +8,7 @@ This is a set of base images and accompanying scripts and utilities to convert d
 
 Once you are running an OSTreefy-based system, you can upgrade it by building a new image and deploying it to the system. If something goes wrong, you can easily roll back to the previous image.
 
-Base images are built automatically by GitHub Actions and are available on GitHub Container Registry: [ghcr.io/wegel/ostreefy](ghcr.io/wegel/ostreefy).
+Base images are built automatically by GitHub Actions and are available on AWS : [public.ecr.aws/q8x0g0l6/ostreefy](public.ecr.aws/q8x0g0l6/ostreefy).
 
 ### Persistence
 
