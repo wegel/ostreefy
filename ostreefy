@@ -64,7 +64,6 @@ disk_create_mounts() {
 }
 
 ostree_create_repo() {
-    ENV_CREATE_DEPS ostree wget which
     ostree admin init-fs --sysroot="${OSTREE_SYS_ROOT}" --modern "${OSTREE_SYS_ROOT}"
     ostree admin stateroot-init --sysroot="${OSTREE_SYS_ROOT}" "${OSTREE_OS}"
     ostree init --repo="${OSTREE_SYS_ROOT}/ostree/repo" --mode=bare
@@ -85,6 +84,17 @@ bootloader_create() {
 
     umount -R "${OSTREE_SYS_ROOT}"
 }
+
+check_programs() {
+    for P in "$@"; do
+        if ! command -v "${P}" > /dev/null 2>&1; then
+            echo "ERROR: Required program '${P}' is not installed."
+            exit 1
+        fi
+    done
+}
+
+check_programs ostree ${CONTAINER_RUNTIME} wget which grub-install
 
 OPERATION=${1:-}
 CONTAINER_IMAGE=${2:-}
