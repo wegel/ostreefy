@@ -1,6 +1,6 @@
 ## OSTreefy any distro
 
-Massive shout-outs to [M1cha](https://github.com/M1cha/) for [M1cha/archlinux-ostree](https://github.com/M1cha/archlinux-ostree and [GrabbenD](https://github.com/GrabbenD) for [GrabbenD/ostree-utility](https://github.com/GrabbenD/ostree-utility) for making this possible.
+Massive shout-outs to [M1cha](https://github.com/M1cha/) for [M1cha/archlinux-ostree](https://github.com/M1cha/archlinux-ostree) and [GrabbenD](https://github.com/GrabbenD) for [GrabbenD/ostree-utility](https://github.com/GrabbenD/ostree-utility) for making this possible.
 
 ### Overview
 
@@ -16,7 +16,7 @@ As per OSTree's design, the root filesystem is read-only and all changes are sto
 
 ### Running
 
-`./ostreefy upgrade my-container-image`
+`./ostreefy upgrade public.ecr.aws/q8x0g0l6/ostreefy/examples/archlinux:wegel-0.0.1`
 
 ### Similar projects
 
