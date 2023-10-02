@@ -1,4 +1,7 @@
-FROM ostreefy/base/archlinux
+# This is what I'm using for some of my personal systems.
+
+ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
+FROM ${BASE_IMAGE}
 
 # SSHD
 RUN pacman --noconfirm -S openssh && \
