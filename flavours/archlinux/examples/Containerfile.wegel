@@ -1,0 +1,96 @@
+FROM ostreefy/base/archlinux
+
+# SSHD
+RUN pacman --noconfirm -S openssh && \
+    systemctl enable sshd && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+RUN pacman -S --needed --noconfirm base-devel git wget curl && \
+    useradd -m builduser && \
+    chown -R builduser:builduser /home/builduser && \
+    echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
+    sudo -u builduser sh -c '\
+      set -eu && \
+      for P in yay; do \
+        git clone https://aur.archlinux.org/$P.git /home/builduser/$P && \
+        cd /home/builduser/$P && \
+        makepkg -si --noconfirm && \
+        rm -rf /home/builder/$P; \
+      done' && \
+    sudo -u builduser sh -c '\
+      set -eu && \
+      for P in visual-studio-code-bin google-chrome wlroots-nvidia-git sway-git; do \
+        yay -S --noconfirm $P; \
+      done' && \
+    rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser && \
+    pacman -R --noconfirm base-devel # we keep curl, wget and git
+
+RUN pacman --noconfirm -S \
+    # Audio/Video
+    alsa-utils \
+    ffmpeg \
+    helvum \
+    mpv \
+    pavucontrol \
+    pipewire-alsa \
+    pipewire-audio \
+    pipewire-jack \
+    pipewire-pulse \
+    vlc \
+    wireplumber \
+    \
+    # Browsers
+    firefox \
+    vivaldi \
+    \
+    # Fonts
+    noto-fonts \
+    noto-fonts-emoji \
+    otf-droid-nerd \
+    otf-firamono-nerd \
+    otf-font-awesome \
+    ttf-hack-nerd \
+    ttf-inconsolata-nerd \
+    ttf-meslo-nerd \
+    ttf-nerd-fonts-symbols \
+    ttf-sourcecodepro-nerd \
+    ttf-terminus-nerd \
+    ttf-ubuntu-mono-nerd \
+    ttf-ubuntu-nerd \
+    \
+    # System Tools and libs
+    bc \
+    distrobox \
+    efibootmgr \
+    fakeroot \
+    fzf \
+    gvfs-smb \
+    htop \
+    libsecret \
+    rsync \
+    tk \
+    vulkan-tools \
+    xorg-xwayland \
+    \
+    # Terminal Emulators
+    alacritty \
+    foot \
+    kitty \
+    \
+    # Text Editors
+    vim \
+    \
+    # Wayland / Compositors / Shells
+    waybar \
+    wofi \
+    \
+    # UI Tools
+    gnome-keyring \
+    nautilus \
+    seahorse \
+    \
+    # Shell
+    zsh \
+    \
+    # NVIDIA
+    nvidia-dkms
