@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=public.ecr.aws/q8x0g0l6/ostreefy/base/archlinux
+ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
 # If you want to use other labels or drive layouts, you could override them here

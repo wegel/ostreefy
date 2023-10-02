@@ -1,8 +1,8 @@
 .PHONY: build
 
-CONTAINER_REGISTRY ?= public.ecr.aws/q8x0g0l6
-BASE_REPOSITORY ?= ostreefy/base
-EXAMPLE_REPOSITORY ?= ostreefy/examples
+CONTAINER_REGISTRY ?= ghcr.io
+BASE_REPOSITORY ?= wegel/ostreefy/base
+EXAMPLE_REPOSITORY ?= wegel/ostreefy/examples
 CONTAINER_TAG ?= $(shell V="$$(git describe --tags --match='[0-9][0-9.]*' --dirty 2>/dev/null)"; if [ "$$V" = "" ]; then git fetch --no-tags --prune origin +refs/heads/main:refs/remotes/origin/main && echo "0.0.0-$$(git rev-list --count origin/main)-$$(git rev-parse --short HEAD)"; else echo "$$V"; fi)
 
 CONTAINER_RUNTIME ?= docker
@@ -42,7 +42,7 @@ build-examples:
 	@for F in flavours/*/examples/Containerfile.*; do \
 		FLAVOUR=$$(echo "$$F" | awk -F'/' '{print $$2}'); \
 		EXAMPLE_NAME=$$(echo "$$F" | awk -F'.' '{print $$2}' | cut -d'/' -f5); \
-		IMAGE_NAME="$(CONTAINER_REGISTRY)/$(EXAMPLE_REPOSITORY)/$${FLAVOUR}:$${EXAMPLE_NAME}-$(CONTAINER_TAG)"; \
+		IMAGE_NAME="$(CONTAINER_REGISTRY)/$(EXAMPLE_REPOSITORY)/$${FLAVOUR}-$${EXAMPLE_NAME}:$(CONTAINER_TAG)"; \
 		echo "Building $$IMAGE_NAME"; \
 		$(CONTAINER_RUNTIME) $(CONTAINER_BUILD_COMMAND) \
 			--file "$${F}" \

@@ -8,7 +8,7 @@ This is a set of base images and accompanying scripts and utilities to convert d
 
 Once you are running an OSTreefy-based system, you can upgrade it by building a new image and deploying it to the system. If something goes wrong, you can easily roll back to the previous image.
 
-Base images are built automatically by GitHub Actions and are available on AWS : [public.ecr.aws/q8x0g0l6/ostreefy](public.ecr.aws/q8x0g0l6/ostreefy).
+Base images are built automatically by GitHub Actions and are available on [GitHub Container Registry](https://github.com/wegel/ostreefy/pkgs/container/ostreefy%2Fbase%2Farchlinux/versions). Example "final" images are also automatically built [and available on GHCR](https://github.com/wegel/ostreefy/pkgs/container/ostreefy%2Fexamples%2Farchlinux-wegel/versions).
 
 ### Persistence
 

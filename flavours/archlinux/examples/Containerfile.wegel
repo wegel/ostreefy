@@ -1,6 +1,6 @@
 # This is what I'm using for some of my personal systems.
 
-ARG BASE_IMAGE=public.ecr.aws/q8x0g0l6/ostreefy/base/archlinux
+ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
 # SSHD
