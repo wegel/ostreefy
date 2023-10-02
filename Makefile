@@ -1,8 +1,10 @@
 .PHONY: build
-CONTAINER_RUNTIME ?= docker
-CONTAINER_REGISTRY ?= ghcr.io/wegel/ostreefy
+
+CONTAINER_REGISTRY ?= ghcr.io
+REPOSITORY=wegel/ostreefy
 CONTAINER_TAG ?= $(shell V="$$(git describe --tags --match='[0-9][0-9.]*' --dirty 2>/dev/null)"; if [ "$$V" = "" ]; then git fetch --no-tags --prune origin +refs/heads/main:refs/remotes/origin/main && echo "0.0.0-$$(git rev-list --count origin/main)-$$(git rev-parse --short HEAD)"; else echo "$$V"; fi)
 
+CONTAINER_RUNTIME ?= docker
 CONTAINER_BUILD_ARGS ?= --pull
 CONTAINER_BUILD_OTHER_ARGS ?=
 CONTAINER_BUILD_OUTPUT ?= type=image
@@ -13,7 +15,7 @@ CONTAINER_BUILD_COMMAND ?= build
 build:
 	@for F in flavours/*/; do \
 		cd $$F
-		IMAGE_NAME="$(CONTAINER_REGISTRY)/base/$$(basename $$F):$(CONTAINER_TAG)"
+		IMAGE_NAME="$(CONTAINER_REGISTRY)/$(REPOSITORY)/base/$$(basename $$F):$(CONTAINER_TAG)"
 		echo "Building $$IMAGE_NAME"
 		docker $(CONTAINER_BUILD_COMMAND) \
 			--file Containerfile \
@@ -34,3 +36,12 @@ build:
 release: CONTAINER_BUILD_OUTPUT=type=registry
 release: CONTAINER_BUILD_OTHER_ARGS += --push
 release: build
+
+get-registry:
+	@echo $(CONTAINER_REGISTRY)
+
+get-tag:
+	@echo $(CONTAINER_TAG)
+
+get-next-tag:
+	@git describe --tags --abbrev=0 | perl -p -e 's/([0-9]+)\.([0-9])+\.([0-9]+)/$$1.".".$$2.".".($$3+1)/pe'
