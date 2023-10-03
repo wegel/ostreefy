@@ -60,4 +60,6 @@ sed -i \
 rm -r ${OSTREE_SYS_TREE}/var/*
 
 # /usr/bin/newuidmap currently loses the setuid bit, not sure why
-chmod u+s "${OSTREE_SYS_TREE}/usr/bin/newuidmap"
+chmod u-s ${OSTREE_SYS_TREE}/usr/bin/new[gu]idmap
+setcap cap_setuid+eip ${OSTREE_SYS_TREE}/usr/bin/newuidmap
+setcap cap_setgid+eip ${OSTREE_SYS_TREE}/usr/bin/newgidmap
