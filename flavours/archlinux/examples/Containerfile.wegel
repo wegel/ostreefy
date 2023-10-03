@@ -26,7 +26,7 @@ RUN pacman -S --needed --noconfirm base-devel git wget curl && \
         yay -S --noconfirm $P; \
       done' && \
     rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser && \
-    pacman -R --noconfirm base-devel # we keep curl, wget and git
+    pacman -R --noconfirm base-devel autoconf automake bison debugedit gcc make guile pkgconf make flex
 
 RUN pacman --noconfirm -S \
     # Audio/Video
