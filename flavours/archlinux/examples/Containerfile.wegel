@@ -91,6 +91,10 @@ RUN pacman --noconfirm -S \
     \
     # Shell
     zsh \
+    # Tools
+    less \
+    neofetch \
+    tig \
     \
     # NVIDIA
     nvidia-dkms
