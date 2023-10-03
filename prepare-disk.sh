@@ -20,10 +20,10 @@ check_programs() {
 disk_create_layout() {
     parted -a optimal -s "$OSTREE_DEV_DISK" -- \
         mklabel gpt \
-        mkpart "$OSTREE_SYS_BOOT_LABEL" fat32 0% 257MiB \
+        mkpart "$OSTREE_SYS_BOOT_LABEL" fat32 0% ${SYS_BOOT_SIZE:-257MiB} \
         set 1 esp on \
-        mkpart "$OSTREE_SYS_ROOT_LABEL" xfs 257MiB 25GiB \
-        mkpart "$OSTREE_SYS_VAR_LABEL" xfs 25GiB 100%
+        mkpart "$OSTREE_SYS_ROOT_LABEL" xfs ${SYS_BOOT_SIZE:-257MiB} ${SYS_ROOT_SIZE:-25GiB} \
+        mkpart "$OSTREE_SYS_VAR_LABEL" xfs ${SYS_ROOT_SIZE:-25GiB} 100%
 }
 
 disk_create_format() {
