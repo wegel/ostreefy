@@ -72,13 +72,10 @@ RUN pacman --noconfirm -S \
     libsecret \
     rsync \
     tk \
-    vulkan-tools \
     xorg-xwayland \
     \
     # Terminal Emulators
-    alacritty \
     foot \
-    kitty \
     \
     # Text Editors
     vim \
