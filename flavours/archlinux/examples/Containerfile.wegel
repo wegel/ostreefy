@@ -3,32 +3,7 @@
 ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
-# SSHD
-RUN pacman --noconfirm -S openssh && \
-    systemctl enable sshd && \
-    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-
-RUN pacman -S --needed --noconfirm base-devel git wget curl && \
-    useradd -m builduser && \
-    chown -R builduser:builduser /home/builduser && \
-    echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
-    sudo -u builduser sh -c '\
-      set -eu && \
-      for P in yay; do \
-        git clone https://aur.archlinux.org/$P.git /home/builduser/$P && \
-        cd /home/builduser/$P && \
-        makepkg -si --noconfirm && \
-        rm -rf /home/builder/$P; \
-      done' && \
-    sudo -u builduser sh -c '\
-      set -eu && \
-      for P in visual-studio-code-bin google-chrome wlroots-nvidia-git sway-git; do \
-        yay -S --noconfirm $P; \
-      done' && \
-    rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser && \
-    pacman -R --noconfirm base-devel autoconf automake bison debugedit gcc make guile pkgconf make flex
-
-RUN pacman --noconfirm -S \
+RUN pacman --noconfirm -Syy \
     # Audio/Video
     alsa-utils \
     ffmpeg \
@@ -71,6 +46,7 @@ RUN pacman --noconfirm -S \
     htop \
     libsecret \
     rsync \
+    openssh \
     tk \
     xorg-xwayland \
     \
@@ -97,4 +73,30 @@ RUN pacman --noconfirm -S \
     tig \
     \
     # NVIDIA
-    nvidia-dkms
+    nvidia-dkms \
+    && \
+    \
+    systemctl enable sshd && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+RUN pacman -Syy --needed --noconfirm base-devel git wget curl && \
+    useradd -m builduser && \
+    chown -R builduser:builduser /home/builduser && \
+    echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
+    sudo -u builduser sh -c '\
+      set -eu && \
+      for P in yay; do \
+        git clone https://aur.archlinux.org/$P.git /home/builduser/$P && \
+        cd /home/builduser/$P && \
+        makepkg -si --noconfirm && \
+        rm -rf /home/builder/$P; \
+      done' && \
+    sudo -u builduser sh -c '\
+      set -eu && \
+      for P in visual-studio-code-bin google-chrome wlroots-nvidia-git sway-git openconnect-sso; do \
+        yay -S --noconfirm $P; \
+      done' && \
+    rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser && \
+    pacman -R --noconfirm base-devel
+
+RUN yes | LANG=C yay -Yc
