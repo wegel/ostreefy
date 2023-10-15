@@ -39,6 +39,7 @@ RUN pacman --noconfirm -Syy \
     # System Tools and libs
     bc \
     distrobox \
+    docker \
     efibootmgr \
     fakeroot \
     fzf \
@@ -54,6 +55,7 @@ RUN pacman --noconfirm -Syy \
     foot \
     \
     # Text Editors
+    mousepad \
     vim \
     \
     # Wayland / Compositors / Shells
@@ -77,6 +79,7 @@ RUN pacman --noconfirm -Syy \
     && \
     \
     systemctl enable sshd && \
+    systemctl enable docker && \
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 RUN pacman -Syy --needed --noconfirm base-devel git wget curl && \
