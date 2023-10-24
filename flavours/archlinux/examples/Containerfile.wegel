@@ -66,6 +66,7 @@ RUN pacman --noconfirm -Syy \
     gnome-keyring \
     nautilus \
     seahorse \
+    swaylock \
     \
     # Shell
     zsh \
