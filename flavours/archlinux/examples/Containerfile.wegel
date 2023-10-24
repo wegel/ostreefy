@@ -38,6 +38,7 @@ RUN pacman --noconfirm -Syy \
     \
     # System Tools and libs
     bc \
+    bluez bluez-utils \
     distrobox \
     efibootmgr \
     fakeroot \
