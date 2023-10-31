@@ -72,6 +72,7 @@ RUN pacman --noconfirm -Syy \
     zsh \
     # Tools
     dstat \
+    lazygit \
     less \
     neofetch \
     screen \ 
