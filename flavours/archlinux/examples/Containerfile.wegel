@@ -71,6 +71,7 @@ RUN pacman --noconfirm -Syy \
     # Shell
     zsh \
     # Tools
+    dstat \
     less \
     neofetch \
     screen \ 
