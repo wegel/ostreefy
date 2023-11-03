@@ -5,12 +5,7 @@ readonly OSTREEFY="ostreefy"
 readonly ERROR_MSG_OSTREE_SYS_TREE="ERROR: OSTREE_SYS_TREE is not set or set to /"
 readonly ERROR_MSG_NON_OSTREE_ENV="ERROR: Not running in non-OSTree environment."
 
-export OSTREE_SYS_ROOT="${OSTREE_SYS_ROOT:-/}"
-export OSTREE_SYS_TREE="${OSTREE_SYS_TREE:-/tmp/rootfs}"
 export OSTREE_OPTS="${OSTREE_OPTS:-"--retain-rollback"}"
-
-export CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-podman}"
-export CONTAINER_RUNTIME_OPTS="${CONTAINER_RUNTIME_OPTS:-}"
 
 export OSTREE_BRANCH="${OSTREE_BRANCH:-${OSTREEFY}/latest}"
 export OSTREE_OS="${OSTREE_OS:-${OSTREEFY}}"
@@ -21,6 +16,14 @@ export OSTREE_SYS_VAR_LABEL="${OSTREE_SYS_VAR_LABEL:-SYS_VAR}"
 export OSTREE_DEV_BOOT="${OSTREE_DEV_BOOT:-/dev/disk/by-label/${OSTREE_SYS_BOOT_LABEL}}"
 export OSTREE_DEV_ROOT="${OSTREE_DEV_ROOT:-/dev/disk/by-label/${OSTREE_SYS_ROOT_LABEL}}"
 export OSTREE_DEV_VAR="${OSTREE_DEV_VAR:-/dev/disk/by-label/${OSTREE_SYS_VAR_LABEL}}"
+
+export OSTREE_SYS_ROOT="${OSTREE_SYS_ROOT:-/mnt/SYS_ROOT}"
+export OSTREE_SYS_VAR="${OSTREE_SYS_VAR:-/mnt/SYS_ROOT/var}"
+export OSTREE_SYS_TREE="${OSTREE_SYS_TREE:-${OSTREE_SYS_VAR}/tmp/rootfs}"
+
+export TMPDIR="${OSTREE_SYS_VAR}/tmp"
+export CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-podman}"
+export CONTAINER_RUNTIME_OPTS="${CONTAINER_RUNTIME_OPTS:---root="${OSTREE_SYS_VAR}/podman/storage" --tmpdir="${OSTREE_SYS_VAR}/podman/tmp"}"
 
 is_local() {
     [ -d "/ostree" ]
@@ -60,7 +63,11 @@ revert_ostree_image() {
 
 disk_create_mounts() {
     mount --mkdir "${OSTREE_DEV_ROOT}" "${OSTREE_SYS_ROOT}"
+    mount --mkdir "${OSTREE_DEV_VAR}" "${OSTREE_SYS_VAR}"
     mount --mkdir "${OSTREE_DEV_BOOT}" "${OSTREE_SYS_ROOT}/boot/efi"
+
+    mkdir -p "${OSTREE_SYS_VAR}/podman/storage"
+    mkdir -p "${OSTREE_SYS_VAR}/podman/tmp"
 }
 
 ostree_create_repo() {
@@ -73,9 +80,9 @@ ostree_create_repo() {
 bootloader_create() {
     grub-install --target=x86_64-efi --efi-directory="${OSTREE_SYS_ROOT}/boot/efi" --removable --boot-directory="${OSTREE_SYS_ROOT}/boot/efi/EFI" --bootloader-id="${OSTREE_OS}" "${OSTREE_DEV_BOOT}"
 
-    export OSTREE_SYS_PATH=$(ls -d "${OSTREE_SYS_ROOT}/ostree/deploy/${OSTREE_OS}/deploy/*" | head -n 1)
+    export OSTREE_SYS_PATH=$(ls -d "${OSTREE_SYS_ROOT}/ostree/deploy/${OSTREE_OS}/deploy/"* | head -n 1)
 
-    rm -rfv "${OSTREE_SYS_PATH}/boot/*"
+    rm -rfv "${OSTREE_SYS_PATH}/boot/"*
     mount --mkdir --rbind "${OSTREE_SYS_ROOT}/boot" "${OSTREE_SYS_PATH}/boot"
     mount --mkdir --rbind "${OSTREE_SYS_ROOT}/ostree" "${OSTREE_SYS_PATH}/sysroot/ostree"
 
@@ -97,7 +104,7 @@ check_programs() {
 check_programs ostree ${CONTAINER_RUNTIME} wget which grub-install
 
 OPERATION=${1:-}
-CONTAINER_IMAGE=${2:-}
+CONTAINER_IMAGE=${2:-ghcr.io/wegel/ostreefy/examples/archlinux-wegel:0.0.1-8-g440387d}
 
 if [ -z "$CONTAINER_IMAGE" ] && [ "$OPERATION" != "revert" ]; then
     echo "ERROR: Container Image not provided."

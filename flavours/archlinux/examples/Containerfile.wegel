@@ -75,7 +75,7 @@ RUN pacman --noconfirm -Syy \
     lazygit \
     less \
     neofetch \
-    screen \ 
+    screen \
     tig \
     tmux \
     \
