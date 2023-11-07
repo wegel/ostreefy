@@ -59,12 +59,16 @@ RUN pacman --noconfirm -Syy \
     neovim \
     \
     # Wayland / Compositors / Shells
+    grim \
+    slurp \
     waybar \
+    wl-clipboard \
     wofi \
     \
     # UI Tools
     gnome-keyring \
     nautilus \
+    qt5-wayland \
     seahorse \
     swaylock \
     \
