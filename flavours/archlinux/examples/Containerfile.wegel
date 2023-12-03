@@ -70,6 +70,7 @@ RUN pacman --noconfirm -Syy \
     nautilus \
     qt5-wayland \
     seahorse \
+    sway \
     swaylock \
     remmina freerdp \
     \
@@ -105,7 +106,7 @@ RUN pacman -Syy --needed --noconfirm base-devel git wget curl && \
       done' && \
     sudo -u builduser sh -c '\
       set -eu && \
-      for P in visual-studio-code-bin google-chrome wlroots-nvidia-git sway-git openconnect-sso; do \
+      for P in visual-studio-code-bin google-chrome openconnect-sso; do \
         yay -S --noconfirm $P; \
       done' && \
     rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser && \
