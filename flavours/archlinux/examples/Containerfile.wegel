@@ -117,3 +117,5 @@ RUN wget https://dot.net/v1/dotnet-install.sh -O /usr/local/bin/dotnet-install.s
     chmod +x /usr/local/bin/dotnet-install.sh && \
     /usr/local/bin/dotnet-install.sh -c 8.0 --install-dir /usr/local/bin && \
     /usr/local/bin/dotnet-install.sh -c 7.0 --install-dir /usr/local/bin
+
+RUN pacman -Syy pinta
