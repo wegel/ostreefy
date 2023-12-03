@@ -65,14 +65,20 @@ RUN pacman --noconfirm -Syy \
     wl-clipboard \
     wofi \
     \
+    # Development tools
+    dotnet-sdk \
+    dotnet-runtime \
+    git wget curl \
+    \
     # UI Tools
     gnome-keyring \
     nautilus \
+    pinta \
     qt5-wayland \
+    remmina freerdp \
     seahorse \
     sway \
     swaylock \
-    remmina freerdp \
     \
     # Shell
     zsh \
@@ -92,7 +98,7 @@ RUN pacman --noconfirm -Syy \
     systemctl enable sshd && \
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-RUN pacman -Syy --needed --noconfirm base-devel git wget curl && \
+RUN pacman -Syy --needed --noconfirm base-devel && \
     useradd -m builduser && \
     chown -R builduser:builduser /home/builduser && \
     echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
@@ -113,10 +119,3 @@ RUN pacman -Syy --needed --noconfirm base-devel git wget curl && \
     pacman -R --noconfirm base-devel
 
 RUN yes | LANG=C yay -Yc
-
-RUN wget https://dot.net/v1/dotnet-install.sh -O /usr/local/bin/dotnet-install.sh && \
-    chmod +x /usr/local/bin/dotnet-install.sh && \
-    /usr/local/bin/dotnet-install.sh -c 8.0 --install-dir /usr/local/bin && \
-    /usr/local/bin/dotnet-install.sh -c 7.0 --install-dir /usr/local/bin
-
-RUN pacman -Syy pinta
