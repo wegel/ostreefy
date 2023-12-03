@@ -112,3 +112,8 @@ RUN pacman -Syy --needed --noconfirm base-devel git wget curl && \
     pacman -R --noconfirm base-devel
 
 RUN yes | LANG=C yay -Yc
+
+RUN wget https://dot.net/v1/dotnet-install.sh -O /usr/local/bin/dotnet-install.sh && \
+    chmod +x /usr/local/bin/dotnet-install.sh && \
+    /usr/local/bin/dotnet-install.sh -c 8.0 --install-dir /usr/local/bin && \
+    /usr/local/bin/dotnet-install.sh -c 7.0 --install-dir /usr/local/bin
