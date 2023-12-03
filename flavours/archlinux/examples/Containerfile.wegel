@@ -71,6 +71,7 @@ RUN pacman --noconfirm -Syy \
     qt5-wayland \
     seahorse \
     swaylock \
+    remmina freerdp \
     \
     # Shell
     zsh \
