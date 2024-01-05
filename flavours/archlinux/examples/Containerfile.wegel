@@ -3,7 +3,7 @@
 ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
-RUN pacman --noconfirm -Syy \
+RUN pacman --noconfirm -Syyu \
     # Audio/Video
     alsa-utils \
     ffmpeg \
@@ -68,6 +68,7 @@ RUN pacman --noconfirm -Syy \
     # Development tools
     dotnet-sdk \
     dotnet-runtime \
+    aspnet-runtime \
     git wget curl \
     \
     # UI Tools
@@ -98,7 +99,7 @@ RUN pacman --noconfirm -Syy \
     systemctl enable sshd && \
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-RUN pacman -Syy --needed --noconfirm base-devel && \
+RUN pacman -Syyu --needed --noconfirm base-devel && \
     useradd -m builduser && \
     chown -R builduser:builduser /home/builduser && \
     echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
