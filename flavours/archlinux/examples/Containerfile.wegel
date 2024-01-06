@@ -84,7 +84,7 @@ RUN pacman --noconfirm -Syyu \
     # Shell
     zsh \
     # Tools
-    dstat \
+    dool \
     lazygit \
     less \
     neofetch \

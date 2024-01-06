@@ -51,7 +51,9 @@ create_rootfs_from_container_image() {
 
 deploy_ostree_image() {
     ostree commit --repo="${OSTREE_SYS_ROOT}/ostree/repo" --branch="${OSTREE_BRANCH}" --tree=dir="${OSTREE_SYS_TREE}"
-    ostree admin deploy --sysroot="${OSTREE_SYS_ROOT}" --karg="root=LABEL=SYS_ROOT" --karg="rw nvidia_drm.modeset=1 module_blacklist=nouveau" --os="${OSTREE_OS}" ${OSTREE_OPTS} "${OSTREE_BRANCH}"
+    ostree admin deploy --sysroot="${OSTREE_SYS_ROOT}" --karg="root=LABEL=SYS_ROOT" \
+        --karg="rw nvidia_drm.modeset=1 module_blacklist=nouveau" \
+        ${OSTREE_OPTS} "${OSTREE_BRANCH}"
 }
 
 revert_ostree_image() {
