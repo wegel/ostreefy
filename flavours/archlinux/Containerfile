@@ -44,7 +44,7 @@ RUN pacman --noconfirm -S \
     grub \
     mkinitcpio \
     \
-    podman \
+    docker \
     ostree \
     which
 
