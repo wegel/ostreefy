@@ -73,6 +73,7 @@ RUN pacman --noconfirm -Syyu \
     \
     # UI Tools
     gnome-keyring \
+    gnome-themes-extra \
     nautilus \
     pinta \
     qt5-wayland \
