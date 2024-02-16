@@ -4,121 +4,119 @@ ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
 RUN pacman --noconfirm -Syyu \
-    # Audio/Video
-    alsa-utils \
-    ffmpeg \
-    mpv \
-    pavucontrol \
-    pipewire-alsa \
-    pipewire-audio \
-    pipewire-jack \
-    pipewire-pulse \
-    vlc \
-    wireplumber \
-    \
-    # Browsers
-    firefox \
-    \
-    # Fonts
-    noto-fonts \
-    noto-fonts-emoji \
-    otf-droid-nerd \
-    otf-firamono-nerd \
-    otf-font-awesome \
-    ttf-hack-nerd \
-    ttf-inconsolata-nerd \
-    ttf-jetbrains-mono-nerd \
-    ttf-meslo-nerd \
-    ttf-nerd-fonts-symbols \
-    ttf-sourcecodepro-nerd \
-    ttf-terminus-nerd \
-    ttf-ubuntu-mono-nerd \
-    ttf-ubuntu-nerd \
-    \
-    # System Tools and libs
-    bc \
-    bluez bluez-utils \
-    distrobox \
-    efibootmgr \
-    fakeroot \
-    fzf \
-    gvfs-smb \
-    htop \
-    libsecret \
-    ntp \
-    ripgrep \
-    rsync \
-    openssh \
-    tk \
-    xorg-xwayland \
-    \
-    # Terminal Emulators
-    foot \
-    \
-    # Text Editors
-    mousepad \
-    neovim \
-    \
-    # Wayland / Compositors / Shells
-    grim \
-    slurp \
-    waybar \
-    wl-clipboard \
-    wofi \
-    \
-    # Development tools
-    dotnet-sdk \
-    dotnet-runtime \
-    aspnet-runtime \
-    git wget curl \
-    \
-    # UI Tools
-    gnome-keyring \
-    gnome-themes-extra \
-    nautilus \
-    pinta \
-    qt5-wayland \
-    remmina freerdp \
-    seahorse \
-    sway \
-    swaylock \
-    \
-    # Shell
-    zsh \
-    # Tools
-    dool \
-    lazygit \
-    less \
-    neofetch \
-    screen \ 
-    tig \
-    tmux \
-    \
-    # NVIDIA
-    nvidia-dkms \
-    && \
-    \
-    systemctl enable sshd && \
-    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+  # Audio/Video
+  alsa-utils \
+  ffmpeg \
+  jack-example-tools \
+  mpv \
+  pavucontrol \
+  pipewire-alsa \
+  pipewire-audio \
+  pipewire-jack \
+  pipewire-pulse \
+  vlc \
+  wireplumber \
+  \
+  # Browsers
+  firefox \
+  vimb \
+  \
+  # Fonts
+  noto-fonts \
+  noto-fonts-emoji \
+  noto-fonts-extra \
+  ttf-jetbrains-mono-nerd \
+  ttf-firacode-nerd \
+  ttf-hack-nerd \
+  \
+  # System Tools and libs
+  bc \
+  bluez bluez-utils \
+  distrobox \
+  efibootmgr \
+  fakeroot \
+  fzf \
+  gvfs-smb \
+  htop \
+  libsecret \
+  ntp \
+  ripgrep \
+  rsync \
+  openssh \
+  tk \
+  xorg-xwayland \
+  \
+  # Terminal Emulators
+  foot \
+  \
+  # Text Editors
+  mousepad \
+  neovim \
+  \
+  # Wayland / Compositors / Shells
+  grim \
+  slurp \
+  waybar \
+  wl-clipboard \
+  wofi \
+  \
+  # misc
+  bitwarden-cli nodejs age chezmoi xorg-xauth xorg-xhost xorg-xeyes \
+  # Development tools; we need base-devel/gcc for some neovim plugins...
+  git wget curl make base-devel \
+  \
+  # UI Tools
+  gnome-keyring \
+  gnome-themes-extra \
+  nautilus \
+  pinta \
+  qt5-wayland \
+  remmina freerdp \
+  seahorse \
+  sway \
+  swayidle \
+  swaybg \
+  swaylock \
+  \
+  # Shell
+  zsh \
+  # Tools
+  dool \
+  lazygit \
+  less \
+  neofetch \
+  screen \ 
+  tig \
+  tmux \
+  unzip \
+  tree \
+  zoxide \
+  bat \
+  exa \
+  \
+  # NVIDIA
+  nvidia \
+  && \
+  \
+  systemctl enable sshd && \
+  echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-RUN pacman -Syyu --needed --noconfirm base-devel && \
-    useradd -m builduser && \
-    chown -R builduser:builduser /home/builduser && \
-    echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
-    sudo -u builduser sh -c '\
-      set -eu && \
-      for P in yay; do \
-        git clone https://aur.archlinux.org/$P.git /home/builduser/$P && \
-        cd /home/builduser/$P && \
-        makepkg -si --noconfirm && \
-        rm -rf /home/builder/$P; \
-      done' && \
-    sudo -u builduser sh -c '\
-      set -eu && \
-      for P in visual-studio-code-bin google-chrome openconnect-sso; do \
-        yay -S --noconfirm $P; \
-      done' && \
-    rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser && \
-    pacman -R --noconfirm base-devel
+RUN useradd -m builduser && \
+  chown -R builduser:builduser /home/builduser && \
+  echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
+  sudo -u builduser sh -c '\
+  set -eu && \
+  for P in yay; do \
+  git clone https://aur.archlinux.org/$P.git /home/builduser/$P && \
+  cd /home/builduser/$P && \
+  makepkg -si --noconfirm && \
+  rm -rf /home/builder/$P; \
+  done' && \
+  sudo -u builduser sh -c '\
+  set -eu && \
+  for P in visual-studio-code-bin google-chrome openconnect-sso; do \
+  yay -S --noconfirm $P; \
+  done' && \
+  rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser
 
 RUN yes | LANG=C yay -Yc
