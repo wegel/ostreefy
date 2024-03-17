@@ -48,6 +48,11 @@ RUN pacman --noconfirm -Syyu \
   \
   # Terminal Emulators
   foot \
+  helix \
+  zellij \
+  lldb \
+  starship \
+  lldb \
   \
   # Text Editors
   mousepad \
@@ -68,6 +73,8 @@ RUN pacman --noconfirm -Syyu \
   # UI Tools
   gnome-keyring \
   gnome-themes-extra \
+  libnotify \
+  mako \
   nautilus \
   pinta \
   qt5-wayland \
@@ -92,7 +99,17 @@ RUN pacman --noconfirm -Syyu \
   tree \
   zoxide \
   bat \
-  exa \
+  eza \
+  duf \
+  broot \
+  dust \ 
+  fd \
+  lsd \
+  bottom \
+  bmon \
+  dua-cli \
+  procs \
+  btop \
   \
   # NVIDIA
   nvidia \
@@ -114,7 +131,7 @@ RUN useradd -m builduser && \
   done' && \
   sudo -u builduser sh -c '\
   set -eu && \
-  for P in visual-studio-code-bin google-chrome openconnect-sso; do \
+  for P in visual-studio-code-bin google-chrome openconnect-sso nvidia-container-toolkit mods; do \
   yay -S --noconfirm $P; \
   done' && \
   rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser
