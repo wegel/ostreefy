@@ -6,7 +6,7 @@ readonly ERROR_MSG_OSTREE_SYS_TREE="ERROR: OSTREE_SYS_TREE is not set or set to 
 readonly ERROR_MSG_NON_OSTREE_ENV="ERROR: Not running in non-OSTree environment."
 
 export OSTREE_SYS_ROOT="${OSTREE_SYS_ROOT:-/}"
-export OSTREE_SYS_TREE="${OSTREE_SYS_TREE:-/tmp/rootfs}"
+export OSTREE_SYS_TREE="${OSTREE_SYS_TREE:-/var/tmp/rootfs}"
 export OSTREE_OPTS="${OSTREE_OPTS:-"--retain-rollback"}"
 
 export CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-podman}"
@@ -21,6 +21,8 @@ export OSTREE_SYS_VAR_LABEL="${OSTREE_SYS_VAR_LABEL:-SYS_VAR}"
 export OSTREE_DEV_BOOT="${OSTREE_DEV_BOOT:-/dev/disk/by-label/${OSTREE_SYS_BOOT_LABEL}}"
 export OSTREE_DEV_ROOT="${OSTREE_DEV_ROOT:-/dev/disk/by-label/${OSTREE_SYS_ROOT_LABEL}}"
 export OSTREE_DEV_VAR="${OSTREE_DEV_VAR:-/dev/disk/by-label/${OSTREE_SYS_VAR_LABEL}}"
+
+export SU_TOOL="${SU_TOOL:-sudo}"
 
 is_local() {
 	[ -d "/ostree" ]
@@ -50,41 +52,41 @@ create_rootfs_from_container_image() {
 }
 
 deploy_ostree_image() {
-	ostree commit --repo="${OSTREE_SYS_ROOT}/ostree/repo" --branch="${OSTREE_BRANCH}" --tree=dir="${OSTREE_SYS_TREE}"
-	ostree admin deploy --sysroot="${OSTREE_SYS_ROOT}" --karg="root=LABEL=SYS_ROOT" \
+	${SU_TOOL} ostree commit --repo="${OSTREE_SYS_ROOT}/ostree/repo" --branch="${OSTREE_BRANCH}" --tree=dir="${OSTREE_SYS_TREE}"
+	${SU_TOOL} ostree admin deploy --sysroot="${OSTREE_SYS_ROOT}" --karg="root=LABEL=SYS_ROOT" \
 		--karg="rw nvidia_drm.modeset=1 module_blacklist=nouveau" --os=${OSTREE_OS} \
 		${OSTREE_OPTS} "${OSTREE_BRANCH}"
 }
 
 revert_ostree_image() {
-	ostree admin undeploy --sysroot="${OSTREE_SYS_ROOT}" 0
+	${SU_TOOL} ostree admin undeploy --sysroot="${OSTREE_SYS_ROOT}" 0
 }
 
 disk_create_mounts() {
-	mount --mkdir "${OSTREE_DEV_ROOT}" "${OSTREE_SYS_ROOT}"
-	mount --mkdir "${OSTREE_DEV_BOOT}" "${OSTREE_SYS_ROOT}/boot/efi"
+	${SU_TOOL} mount --mkdir "${OSTREE_DEV_ROOT}" "${OSTREE_SYS_ROOT}"
+	${SU_TOOL} mount --mkdir "${OSTREE_DEV_BOOT}" "${OSTREE_SYS_ROOT}/boot/efi"
 }
 
 ostree_create_repo() {
-	ostree admin init-fs --sysroot="${OSTREE_SYS_ROOT}" --modern "${OSTREE_SYS_ROOT}"
-	ostree admin stateroot-init --sysroot="${OSTREE_SYS_ROOT}" "${OSTREE_OS}"
-	ostree init --repo="${OSTREE_SYS_ROOT}/ostree/repo" --mode=bare
-	ostree config --repo="${OSTREE_SYS_ROOT}/ostree/repo" set sysroot.bootprefix "true"
+	${SU_TOOL} ostree admin init-fs --sysroot="${OSTREE_SYS_ROOT}" --modern "${OSTREE_SYS_ROOT}"
+	${SU_TOOL} ostree admin stateroot-init --sysroot="${OSTREE_SYS_ROOT}" "${OSTREE_OS}"
+	${SU_TOOL} ostree init --repo="${OSTREE_SYS_ROOT}/ostree/repo" --mode=bare
+	${SU_TOOL} ostree config --repo="${OSTREE_SYS_ROOT}/ostree/repo" set sysroot.bootprefix "true"
 }
 
 bootloader_create() {
-	grub-install --target=x86_64-efi --efi-directory="${OSTREE_SYS_ROOT}/boot/efi" --removable --boot-directory="${OSTREE_SYS_ROOT}/boot/efi/EFI" --bootloader-id="${OSTREE_OS}" "${OSTREE_DEV_BOOT}"
+	${SU_TOOL} grub-install --target=x86_64-efi --efi-directory="${OSTREE_SYS_ROOT}/boot/efi" --removable --boot-directory="${OSTREE_SYS_ROOT}/boot/efi/EFI" --bootloader-id="${OSTREE_OS}" "${OSTREE_DEV_BOOT}"
 
 	export OSTREE_SYS_PATH=$(ls -d "${OSTREE_SYS_ROOT}/ostree/deploy/${OSTREE_OS}/deploy/"* | head -n 1)
 
 	rm -rfv "${OSTREE_SYS_PATH}/boot/"*
-	mount --mkdir --rbind "${OSTREE_SYS_ROOT}/boot" "${OSTREE_SYS_PATH}/boot"
-	mount --mkdir --rbind "${OSTREE_SYS_ROOT}/ostree" "${OSTREE_SYS_PATH}/sysroot/ostree"
+	${SU_TOOL} mount --mkdir --rbind "${OSTREE_SYS_ROOT}/boot" "${OSTREE_SYS_PATH}/boot"
+	${SU_TOOL} mount --mkdir --rbind "${OSTREE_SYS_ROOT}/ostree" "${OSTREE_SYS_PATH}/sysroot/ostree"
 
 	for i in /dev /proc /sys; do mount -o bind "$i" "${OSTREE_SYS_PATH}${i}"; done
-	chroot "${OSTREE_SYS_PATH}" /bin/bash -c "grub-mkconfig -o /boot/efi/EFI/grub/grub.cfg"
+	${SU_TOOL} chroot "${OSTREE_SYS_PATH}" /bin/bash -c "grub-mkconfig -o /boot/efi/EFI/grub/grub.cfg"
 
-	umount -R "${OSTREE_SYS_ROOT}"
+	${SU_TOOL} umount -R "${OSTREE_SYS_ROOT}"
 }
 
 check_programs() {
@@ -96,7 +98,7 @@ check_programs() {
 	done
 }
 
-check_programs ostree ${CONTAINER_RUNTIME} wget which grub-install
+check_programs ostree ${CONTAINER_RUNTIME} wget which grub-install ${SU_TOOL}
 
 OPERATION=${1:-}
 CONTAINER_IMAGE=${2:-}

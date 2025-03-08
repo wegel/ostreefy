@@ -3,6 +3,11 @@
 ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
+RUN echo -e "Server = http://mirror2.evolution-host.com/archlinux/\$repo/os/\$arch\nServer = https://arch.mirror.winslow.cloud/\$repo/os/\$arch\nServer = http://mirror.0xem.ma/arch/\$repo/os/\$arch\nServer = https://mirror2.evolution-host.com/archlinux/\$repo/os/\$arch\nServer = http://mirrors.pablonara.com/archlinux/\$repo/os/\$arch\nServer = https://mirror.0xem.ma/arch/\$repo/os/\$arch\nServer = https://mirrors.pablonara.com/archlinux/\$repo/os/\$arch\nServer = http://ca.mirrors.cicku.me/archlinux/\$repo/os/\$arch\nServer = http://mirror.xenyth.net/archlinux/\$repo/os/\$arch\nServer = https://mirror.qctronics.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+
+RUN rm -rf /etc/pacman.d/gnupg && pacman-key --init && pacman-key --populate
+RUN printf "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+
 RUN pacman --noconfirm -Syyu \
   # Audio/Video
   alsa-utils \
@@ -66,7 +71,7 @@ RUN pacman --noconfirm -Syyu \
   wofi \
   \
   # misc
-  bitwarden-cli nodejs age chezmoi xorg-xauth xorg-xhost xorg-xeyes \
+  age chezmoi xorg-xauth xorg-xhost xorg-xeyes \
   # Development tools; we need base-devel/gcc for some neovim plugins...
   git wget curl make base-devel \
   \
@@ -87,6 +92,8 @@ RUN pacman --noconfirm -Syyu \
   \
   # Shell
   zsh \
+  nushell \
+  fish \
   # Tools
   dool \
   lazygit \
@@ -110,6 +117,16 @@ RUN pacman --noconfirm -Syyu \
   dua-cli \
   procs \
   btop \
+  bash-language-server gopls vscode-json-languageserver python-lsp-server yaml-language-server taplo-cli \
+  meld \  
+  strip-nondeterminism \
+  libvirt qemu-full virt-manager \
+  polkit-gnome dmidecode \
+  slirp4netns fuse-overlayfs \
+  libxcrypt-compat sqlitebrowser imagemagick libvncserver \
+  gdb \
+  steam \
+  xdg-desktop-portal xdg-desktop-portal-wlr \
   \
   # NVIDIA
   nvidia \
@@ -118,6 +135,7 @@ RUN pacman --noconfirm -Syyu \
   systemctl enable sshd && \
   echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
+#TODO: re-add omnisharp-roslyn 
 RUN useradd -m builduser && \
   chown -R builduser:builduser /home/builduser && \
   echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser && \
@@ -131,7 +149,7 @@ RUN useradd -m builduser && \
   done' && \
   sudo -u builduser sh -c '\
   set -eu && \
-  for P in visual-studio-code-bin google-chrome openconnect-sso nvidia-container-toolkit mods; do \
+  for P in microsoft-edge-stable-bin looking-glass jetbrains-toolbox visual-studio-code-bin google-chrome openconnect-sso nvidia-container-toolkit mods jdtls marksman-bin sql-language-server flac1.3; do \
   yay -S --noconfirm $P; \
   done' && \
   rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser

@@ -6,7 +6,7 @@ EXAMPLE_REPOSITORY ?= wegel/ostreefy/examples
 CONTAINER_TAG ?= $(shell V="$$(git describe --tags --match='[0-9][0-9.]*' --dirty 2>/dev/null)"; if [ "$$V" = "" ]; then git fetch --no-tags --prune origin +refs/heads/main:refs/remotes/origin/main && echo "0.0.0-$$(git rev-list --count origin/main)-$$(git rev-parse --short HEAD)"; else echo "$$V"; fi)
 
 CONTAINER_RUNTIME ?= podman
-CONTAINER_BUILD_ARGS :=
+CONTAINER_BUILD_ARGS := --no-cache
 CONTAINER_BUILD_COMMAND ?= build
 PUSH_CONTAINER ?=
 

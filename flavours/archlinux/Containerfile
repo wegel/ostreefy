@@ -1,6 +1,8 @@
 FROM docker.io/library/archlinux
 # image-name: ostreefy/base/archlinux
 
+RUN rm -rf /etc/pacman.d/gnupg && pacman-key --init && pacman-key --populate
+
 # Clock
 ARG SYSTEM_OPT_TIMEZONE=Etc/UTC
 RUN ln -sf /usr/share/zoneinfo/${SYSTEM_OPT_TIMEZONE} /etc/localtime
