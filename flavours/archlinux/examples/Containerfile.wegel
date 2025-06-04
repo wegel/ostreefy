@@ -135,6 +135,8 @@ RUN pacman --noconfirm -Syyu \
   systemctl enable sshd && \
   echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
+RUN for P in /packages/*.zst; do pacman -U --noconfirm "$P"; done;
+RUN rsync -av /tree/ / || true
 #TODO: re-add omnisharp-roslyn 
 RUN useradd -m builduser && \
   chown -R builduser:builduser /home/builduser && \

@@ -45,6 +45,8 @@ build-examples: build
 		echo "Building $$IMAGE_NAME"; \
 		$(CONTAINER_RUNTIME) $(CONTAINER_BUILD_COMMAND) \
 			--file "$${F}" \
+			--volume "$$(readlink -f $$(dirname $${F})/packages)":/packages \
+			--volume "$$(readlink -f $$(dirname $${F})/tree)":/tree \
 			--tag $$IMAGE_NAME \
 			--build-arg BASE_IMAGE="$(CONTAINER_REGISTRY)/$(BASE_REPOSITORY)/$${FLAVOUR}:$(CONTAINER_TAG)" \
 			--label build.commit.hash="$(shell git log -1 --format=%H)" \
