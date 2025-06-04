@@ -9,7 +9,7 @@ RUN rm -rf /etc/pacman.d/gnupg && pacman-key --init && pacman-key --populate
 RUN printf "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
 
 RUN pacman --noconfirm -Syyu \
-  # Audio/Video
+  # audio/video
   alsa-utils \
   ffmpeg \
   jack-example-tools \
@@ -22,114 +22,143 @@ RUN pacman --noconfirm -Syyu \
   vlc \
   wireplumber \
   \
-  # Browsers
+  # browsers
   firefox \
   vimb \
   \
-  # Fonts
+  # development tools
+  base-devel \
+  bash-language-server \
+  cmake \
+  curl \
+  gdb \
+  git \
+  gopls \
+  jdk21-openjdk \
+  lazygit \
+  lldb \
+  make \
+  meld \
+  meson \
+  openbsd-netcat \
+  python-lsp-server \
+  sqlitebrowser \
+  taplo-cli \
+  tig \
+  vscode-json-languageserver \
+  wget \
+  yaml-language-server \
+  \
+  # fonts
   noto-fonts \
   noto-fonts-emoji \
   noto-fonts-extra \
-  ttf-jetbrains-mono-nerd \
   ttf-firacode-nerd \
   ttf-hack-nerd \
+  ttf-jetbrains-mono-nerd \
   \
-  # System Tools and libs
+  # gaming
+  steam \
+  \
+  # shell
+  fish \
+  nushell \
+  zsh \
+  \
+  # system tools
+  age \
   bc \
-  bluez bluez-utils \
+  bluez \
+  bluez-utils \
+  chezmoi \
+  dmidecode \
   distrobox \
   efibootmgr \
   fakeroot \
-  fzf \
+  fuse-overlayfs \
   gvfs-smb \
-  htop \
+  imagemagick \
+  inetutils \
   libsecret \
+  libva-nvidia-driver \
+  libvirt \
+  libvncserver \
+  libxcrypt-compat \
   ntp \
-  ripgrep \
-  rsync \
+  nvidia \
+  nvidia-utils \
   openssh \
+  polkit-gnome \
+  qemu-full \
+  rsync \
+  slirp4netns \
+  strip-nondeterminism \
   tk \
+  virt-manager \
+  vulkan-radeon \
+  vulkan-tools \
+  xdg-desktop-portal \
+  xdg-desktop-portal-wlr \
+  xorg-xauth \
+  xorg-xeyes \
+  xorg-xhost \
   xorg-xwayland \
   \
-  # Terminal Emulators
+  # terminal emulators
   foot \
-  helix \
-  zellij \
-  lldb \
-  starship \
-  lldb \
   \
-  # Text Editors
+  # terminal tools
+  bat \
+  bmon \
+  bottom \
+  broot \
+  btop \
+  dool \
+  dua-cli \
+  duf \
+  dust \
+  eza \
+  fd \
+  fzf \
+  helix \
+  htop \
+  less \
+  lsd \
+  procs \
+  ripgrep \
+  screen \
+  starship \
+  tmux \
+  tree \
+  unzip \
+  zellij \
+  zoxide \
+  \
+  # text editors
   mousepad \
   neovim \
   \
-  # Wayland / Compositors / Shells
-  grim \
-  slurp \
-  waybar \
-  wl-clipboard \
-  wofi \
-  \
-  # misc
-  age chezmoi xorg-xauth xorg-xhost xorg-xeyes \
-  # Development tools; we need base-devel/gcc for some neovim plugins...
-  git wget curl make base-devel \
-  \
-  # UI Tools
+  # ui/desktop
+  freerdp \
   gnome-keyring \
   gnome-themes-extra \
   libnotify \
   mako \
   nautilus \
-  pinta \
   qt5-wayland \
-  remmina freerdp \
+  remmina \
   seahorse \
+  \
+  # wayland/sway
+  grim \
+  slurp \
   sway \
-  swayidle \
   swaybg \
+  swayidle \
   swaylock \
-  \
-  # Shell
-  zsh \
-  nushell \
-  fish \
-  # Tools
-  dool \
-  lazygit \
-  less \
-  neofetch \
-  screen \ 
-  tig \
-  tmux \
-  unzip \
-  tree \
-  zoxide \
-  bat \
-  eza \
-  duf \
-  broot \
-  dust \ 
-  fd \
-  lsd \
-  bottom \
-  bmon \
-  dua-cli \
-  procs \
-  btop \
-  bash-language-server gopls vscode-json-languageserver python-lsp-server yaml-language-server taplo-cli \
-  meld \  
-  strip-nondeterminism \
-  libvirt qemu-full virt-manager \
-  polkit-gnome dmidecode \
-  slirp4netns fuse-overlayfs \
-  libxcrypt-compat sqlitebrowser imagemagick libvncserver \
-  gdb \
-  steam \
-  xdg-desktop-portal xdg-desktop-portal-wlr \
-  \
-  # NVIDIA
-  nvidia \
+  waybar \
+  wl-clipboard \
+  wofi \
   && \
   \
   systemctl enable sshd && \
@@ -137,6 +166,7 @@ RUN pacman --noconfirm -Syyu \
 
 RUN for P in /packages/*.zst; do pacman -U --noconfirm "$P"; done;
 RUN rsync -av /tree/ / || true
+
 #TODO: re-add omnisharp-roslyn 
 RUN useradd -m builduser && \
   chown -R builduser:builduser /home/builduser && \
@@ -151,9 +181,10 @@ RUN useradd -m builduser && \
   done' && \
   sudo -u builduser sh -c '\
   set -eu && \
-  for P in microsoft-edge-stable-bin looking-glass jetbrains-toolbox visual-studio-code-bin google-chrome openconnect-sso nvidia-container-toolkit mods jdtls marksman-bin sql-language-server flac1.3; do \
+  for P in flac1.3 google-chrome jdtls jetbrains-toolbox looking-glass marksman-bin microsoft-edge-stable-bin mods nvidia-container-toolkit openconnect-sso sql-language-server visual-studio-code-bin; do \
   yay -S --noconfirm $P; \
   done' && \
   rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser
+
 
 RUN yes | LANG=C yay -Yc
