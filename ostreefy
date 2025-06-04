@@ -8,6 +8,7 @@ readonly ERROR_MSG_NON_OSTREE_ENV="ERROR: Not running in non-OSTree environment.
 export OSTREE_SYS_ROOT="${OSTREE_SYS_ROOT:-/}"
 export OSTREE_SYS_TREE="${OSTREE_SYS_TREE:-/var/tmp/rootfs}"
 export OSTREE_OPTS="${OSTREE_OPTS:-"--retain-rollback"}"
+export OSTREE_KARGS="${OSTREE_KARGS:-$(cat "${OSTREE_KARGS_FILE:-kargs.local}" 2>/dev/null || true)}"
 
 export CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-podman}"
 export CONTAINER_RUNTIME_OPTS="${CONTAINER_RUNTIME_OPTS:-}"
@@ -53,9 +54,17 @@ create_rootfs_from_container_image() {
 
 deploy_ostree_image() {
 	${SU_TOOL} ostree commit --repo="${OSTREE_SYS_ROOT}/ostree/repo" --branch="${OSTREE_BRANCH}" --tree=dir="${OSTREE_SYS_TREE}"
-	${SU_TOOL} ostree admin deploy --sysroot="${OSTREE_SYS_ROOT}" --karg="root=LABEL=SYS_ROOT" \
-		--karg="rw nvidia_drm.modeset=1 module_blacklist=nouveau" --os=${OSTREE_OS} \
-		${OSTREE_OPTS} "${OSTREE_BRANCH}"
+
+	# build kargs from default and user-provided args
+	KARGS="--karg=root=LABEL=SYS_ROOT --karg=rw"
+	if [ -n "${OSTREE_KARGS}" ]; then
+		for karg in ${OSTREE_KARGS}; do
+			KARGS="${KARGS} --karg=${karg}"
+		done
+	fi
+
+	${SU_TOOL} ostree admin deploy --sysroot="${OSTREE_SYS_ROOT}" ${KARGS} \
+		--os=${OSTREE_OS} ${OSTREE_OPTS} "${OSTREE_BRANCH}"
 }
 
 revert_ostree_image() {

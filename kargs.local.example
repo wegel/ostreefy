@@ -1,0 +1,3 @@
+nvidia_drm.modeset=1
+module_blacklist=nouveau,amdgpu
+drm.edid_firmware=Unknown-1:edid-1920x722_60.bin,DP-1:edid-1920x722_60.bin
