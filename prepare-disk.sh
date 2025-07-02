@@ -4,9 +4,6 @@ set -eux
 export OSTREE_SYS_BOOT_LABEL="${OSTREE_SYS_BOOT_LABEL:-SYS_BOOT}"
 export OSTREE_SYS_ROOT_LABEL="${OSTREE_SYS_ROOT_LABEL:-SYS_ROOT}"
 export OSTREE_SYS_VAR_LABEL="${OSTREE_SYS_VAR_LABEL:-SYS_VAR}"
-export OSTREE_DEV_BOOT="${OSTREE_DEV_BOOT:-/dev/disk/by-label/$OSTREE_SYS_BOOT_LABEL}"
-export OSTREE_DEV_ROOT="${OSTREE_DEV_ROOT:-/dev/disk/by-label/$OSTREE_SYS_ROOT_LABEL}"
-export OSTREE_DEV_VAR="${OSTREE_DEV_VAR:-/dev/disk/by-label/$OSTREE_SYS_VAR_LABEL}"
 
 check_programs() {
     for prog in "$@"; do
@@ -36,26 +33,43 @@ disk_create_format() {
 check_programs mkfs.xfs mkfs.vfat parted
 
 if [ -z "${OSTREE_DEV_DISK:-}" ]; then
-    if [ -z "${OSTREE_DEV_BOOT:-}" ] || [ -z "${OSTREE_DEV_ROOT:-}" ] || [ -z "${OSTREE_DEV_VAR:-}" ]; then
-        echo "ERROR: OSTREE_DEV_DISK or OSTREE_DEV_BOOT, OSTREE_DEV_ROOT, and OSTREE_DEV_VAR must be set"
-        exit 1
-    fi
-else
-    if [ -n "${OSTREE_DEV_BOOT:-}" ] || [ -n "${OSTREE_DEV_ROOT:-}" ] || [ -n "${OSTREE_DEV_VAR:-}" ]; then
-        echo "ERROR: OSTREE_DEV_DISK and OSTREE_DEV_BOOT, OSTREE_DEV_ROOT, and OSTREE_DEV_VAR cannot be set at the same time"
-        exit 1
-    fi
-fi
-
-if [ -z "${OSTREE_DEV_DISK:-}" ]; then
+    # use existing partitions - set defaults if not already set
+    : "${OSTREE_DEV_BOOT:=/dev/disk/by-label/$OSTREE_SYS_BOOT_LABEL}"
+    : "${OSTREE_DEV_ROOT:=/dev/disk/by-label/$OSTREE_SYS_ROOT_LABEL}"
+    : "${OSTREE_DEV_VAR:=/dev/disk/by-label/$OSTREE_SYS_VAR_LABEL}"
+    
+    export OSTREE_DEV_BOOT OSTREE_DEV_ROOT OSTREE_DEV_VAR
+    
     echo "Using $OSTREE_DEV_BOOT, $OSTREE_DEV_ROOT, and $OSTREE_DEV_VAR..."
 else
+    # create new partitions
     echo "Using $OSTREE_DEV_DISK..."
     read -r -p "WARNING: This will erase all data on $OSTREE_DEV_DISK. Are you sure? [y/N] " REPLY
     if [ ! "$REPLY" = "y" ] && [ ! "$REPLY" = "Y" ]; then
         exit 1
     fi
+    
     disk_create_layout
+    
+    # wait for kernel to recognize new partitions
+    partprobe "$OSTREE_DEV_DISK" 2>/dev/null || true
+    sleep 1
+    
+    # determine partition device paths based on disk type
+    if echo "$OSTREE_DEV_DISK" | grep -q "nvme\|mmcblk"; then
+        # nvme and mmcblk devices use 'p' before partition number
+        OSTREE_DEV_BOOT="${OSTREE_DEV_DISK}p1"
+        OSTREE_DEV_ROOT="${OSTREE_DEV_DISK}p2"
+        OSTREE_DEV_VAR="${OSTREE_DEV_DISK}p3"
+    else
+        # regular block devices (sda, vda, etc)
+        OSTREE_DEV_BOOT="${OSTREE_DEV_DISK}1"
+        OSTREE_DEV_ROOT="${OSTREE_DEV_DISK}2"
+        OSTREE_DEV_VAR="${OSTREE_DEV_DISK}3"
+    fi
+    
+    export OSTREE_DEV_BOOT OSTREE_DEV_ROOT OSTREE_DEV_VAR
+    echo "Using $OSTREE_DEV_BOOT, $OSTREE_DEV_ROOT, and $OSTREE_DEV_VAR..."
 fi
 
 read -r -p "WARNING: This will erase all data on $OSTREE_DEV_BOOT, $OSTREE_DEV_ROOT, and $OSTREE_DEV_VAR. Are you sure? [y/N] " REPLY
@@ -65,3 +79,4 @@ fi
 disk_create_format
 
 echo "Done."
+
