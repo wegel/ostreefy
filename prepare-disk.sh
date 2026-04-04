@@ -19,18 +19,18 @@ disk_create_layout() {
         mklabel gpt \
         mkpart "$OSTREE_SYS_BOOT_LABEL" fat32 0% ${SYS_BOOT_SIZE:-257MiB} \
         set 1 esp on \
-        mkpart "$OSTREE_SYS_ROOT_LABEL" xfs ${SYS_BOOT_SIZE:-257MiB} ${SYS_ROOT_SIZE:-25GiB} \
-        mkpart "$OSTREE_SYS_VAR_LABEL" xfs ${SYS_ROOT_SIZE:-25GiB} 100%
+        mkpart "$OSTREE_SYS_ROOT_LABEL" ext4 ${SYS_BOOT_SIZE:-257MiB} ${SYS_ROOT_SIZE:-128GiB} \
+        mkpart "$OSTREE_SYS_VAR_LABEL" ext4 ${SYS_ROOT_SIZE:-128GiB} 100%
 }
 
 disk_create_format() {
     mkfs.vfat -n "$OSTREE_SYS_BOOT_LABEL" -F 32 "$OSTREE_DEV_BOOT"
-    mkfs.xfs -L "$OSTREE_SYS_ROOT_LABEL" -f "$OSTREE_DEV_ROOT" -n ftype=1
-    mkfs.xfs -L "$OSTREE_SYS_VAR_LABEL" -f "$OSTREE_DEV_VAR" -n ftype=1
+    mkfs.ext4 -L "$OSTREE_SYS_ROOT_LABEL" -F "$OSTREE_DEV_ROOT"
+    mkfs.ext4 -L "$OSTREE_SYS_VAR_LABEL" -F "$OSTREE_DEV_VAR"
 }
 
 # Check for required programs
-check_programs mkfs.xfs mkfs.vfat parted
+check_programs mkfs.ext4 mkfs.vfat parted
 
 if [ -z "${OSTREE_DEV_DISK:-}" ]; then
     # use existing partitions - set defaults if not already set
