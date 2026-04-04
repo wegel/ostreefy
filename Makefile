@@ -13,7 +13,8 @@ PUSH_CONTAINER ?=
 .ONESHELL:
 
 build:
-	@for F in flavours/*/; do \
+	@set -e; \
+	for F in flavours/*/; do \
 		cd $$F
 		IMAGE_NAME="$(CONTAINER_REGISTRY)/$(BASE_REPOSITORY)/$$(basename $$F):$(CONTAINER_TAG)"
 		echo "Building $$IMAGE_NAME"
@@ -38,7 +39,8 @@ release: PUSH_CONTAINER = true
 release: build
 
 build-examples: build
-	@for F in flavours/*/examples/Containerfile.*; do \
+	@set -e; \
+	for F in flavours/*/examples/Containerfile.*; do \
 		FLAVOUR=$$(echo "$$F" | awk -F'/' '{print $$2}'); \
 		EXAMPLE_NAME=$$(echo "$$F" | awk -F'.' '{print $$2}' | cut -d'/' -f5); \
 		IMAGE_NAME="$(CONTAINER_REGISTRY)/$(EXAMPLE_REPOSITORY)/$${FLAVOUR}-$${EXAMPLE_NAME}:$(CONTAINER_TAG)"; \
