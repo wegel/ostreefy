@@ -16,7 +16,6 @@ RUN pacman --noconfirm -Syyu \
   # audio/video
   alsa-utils \
   ffmpeg \
-  jack-example-tools \
   mpv \
   pavucontrol \
   pipewire-alsa \
@@ -29,7 +28,6 @@ RUN pacman --noconfirm -Syyu \
   \
   # browsers
   firefox \
-  vimb \
   \
   # development tools
   aws-cli \
@@ -66,8 +64,6 @@ RUN pacman --noconfirm -Syyu \
   steam \
   \
   # shell
-  fish \
-  nushell \
   zsh \
   \
   # system tools
@@ -124,7 +120,6 @@ RUN pacman --noconfirm -Syyu \
   eza \
   fd \
   fzf \
-  helix \
   jq \
   htop \
   less \
