@@ -1,3 +1,5 @@
-kargs.local
+*.local
+*.local.*
+/tmp/
 **/packages/
 **/tree/
