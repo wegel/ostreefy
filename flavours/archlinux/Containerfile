@@ -16,7 +16,8 @@ RUN ln -sf /usr/share/zoneinfo/${SYSTEM_OPT_TIMEZONE} /etc/localtime
 
 # Remove container specific storage optimization in Pacman
 RUN sed -i -e "s|^NoExtract.*||g" /etc/pacman.conf && \
-  pacman --noconfirm -Syu
+  pacman --noconfirm -Syu && \
+  systemctl enable getty@.service
 
 # Keymap hook
 ARG SYSTEM_OPT_KEYMAP=us
@@ -61,10 +62,13 @@ RUN pacman --noconfirm -S \
   which
 
 # OSTree: Prepare microcode and initramfs
-RUN moduledir=$(find /usr/lib/modules -mindepth 1 -maxdepth 1 -type d) && \
+RUN KVER=$(ls /usr/lib/modules | sort -V | tail -1) && \
+  if [ ! -f /boot/initramfs-linux-fallback.img ]; then \
+    mkinitcpio -k "$KVER" -S autodetect -g /boot/initramfs-linux-fallback.img; \
+  fi && \
   cat /boot/*-ucode.img \
   /boot/initramfs-linux-fallback.img \
-  > ${moduledir}/initramfs.img
+  > "/usr/lib/modules/$KVER/initramfs.img"
 
 # OSTree: Bootloader integration
 RUN curl https://raw.githubusercontent.com/ostreedev/ostree/v2023.6/src/boot/grub2/grub2-15_ostree -o /etc/grub.d/15_ostree && \
