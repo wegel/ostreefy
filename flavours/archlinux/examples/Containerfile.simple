@@ -1,6 +1,11 @@
 ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
+ARG ARCH_MIRROR_COUNTRIES=US,CA
+ARG ARCH_MIRROR_CANDIDATES=20
+ARG ARCH_MIRROR_COUNT=6
+RUN ostreefy-refresh-arch-mirrors
+
 # If you want to use other labels or drive layouts, you could override them here
 #ARG OSTREE_SYS_BOOT_LABEL
 #ARG OSTREE_SYS_ROOT_LABEL

@@ -1,6 +1,13 @@
 FROM docker.io/library/archlinux
 # image-name: ostreefy/base/archlinux
 
+COPY refresh-arch-mirrors /usr/local/sbin/ostreefy-refresh-arch-mirrors
+ARG ARCH_MIRROR_COUNTRIES=US,CA
+ARG ARCH_MIRROR_CANDIDATES=20
+ARG ARCH_MIRROR_COUNT=6
+RUN chmod 0755 /usr/local/sbin/ostreefy-refresh-arch-mirrors && \
+  ostreefy-refresh-arch-mirrors
+
 RUN rm -rf /etc/pacman.d/gnupg && pacman-key --init && pacman-key --populate
 
 # Clock

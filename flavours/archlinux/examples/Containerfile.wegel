@@ -3,11 +3,10 @@
 ARG BASE_IMAGE=ghcr.io/wegel/ostreefy/base/archlinux
 FROM ${BASE_IMAGE}
 
-# use more reliable mirrors and add timeout/retry configuration
-RUN echo -e "Server = https://geo.mirror.pkgbuild.com/\$repo/os/\$arch\nServer = https://america.mirror.pkgbuild.com/\$repo/os/\$arch\nServer = https://europe.mirror.pkgbuild.com/\$repo/os/\$arch\nServer = https://asia.mirror.pkgbuild.com/\$repo/os/\$arch\nServer = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch\nServer = https://mirror.leaseweb.net/archlinux/\$repo/os/\$arch\nServer = https://archlinux.thaller.ws/\$repo/os/\$arch\nServer = https://mirrors.kernel.org/archlinux/\$repo/os/\$arch\nServer = https://mirror.f4st.host/archlinux/\$repo/os/\$arch\nServer = https://mirror.chaoticum.net/arch/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist && \
-  # increase download timeout and add retry on timeout
-  sed -i 's/^#ParallelDownloads = 5$/ParallelDownloads = 5/' /etc/pacman.conf && \
-  echo -e "\n# Download options\nDownloadTimeout = 60" >> /etc/pacman.conf
+ARG ARCH_MIRROR_COUNTRIES=US,CA
+ARG ARCH_MIRROR_CANDIDATES=20
+ARG ARCH_MIRROR_COUNT=6
+RUN ostreefy-refresh-arch-mirrors
 
 RUN rm -rf /etc/pacman.d/gnupg && pacman-key --init && pacman-key --populate && \
     pacman -Sy --noconfirm archlinux-keyring

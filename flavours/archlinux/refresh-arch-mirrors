@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mirrorlist_url="https://archlinux.org/mirrorlist/?protocol=https&use_mirror_status=on"
+countries="${ARCH_MIRROR_COUNTRIES:-US,CA}"
+candidate_count="${ARCH_MIRROR_CANDIDATES:-20}"
+mirror_count="${ARCH_MIRROR_COUNT:-6}"
+repo="${ARCH_MIRROR_TEST_REPO:-core}"
+arch="${ARCH_MIRROR_TEST_ARCH:-$(uname -m)}"
+
+workdir="$(mktemp -d)"
+trap 'rm -rf "$workdir"' EXIT
+
+if [ -f /etc/pacman.conf ]; then
+  sed -i 's/^#ParallelDownloads = /ParallelDownloads = /' /etc/pacman.conf
+fi
+
+write_fallback_mirrors() {
+  cat > /etc/pacman.d/mirrorlist <<'EOF'
+Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch
+Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = https://mirror.csclub.uwaterloo.ca/archlinux/$repo/os/$arch
+Server = https://mirror.umd.edu/archlinux/$repo/os/$arch
+Server = https://america.mirror.pkgbuild.com/$repo/os/$arch
+EOF
+}
+
+IFS=',' read -ra country_codes <<< "$countries"
+for country in "${country_codes[@]}"; do
+  if [ -n "$country" ]; then
+    mirrorlist_url="${mirrorlist_url}&country=${country}"
+  fi
+done
+
+if ! curl -fsSL "$mirrorlist_url" -o "$workdir/mirrorlist"; then
+  echo "Arch mirror list download failed; using fallback mirrors." >&2
+  write_fallback_mirrors
+  exit 0
+fi
+
+sed -n 's/^#Server = /Server = /p' "$workdir/mirrorlist" > "$workdir/servers"
+grep -v 'geo.mirror.pkgbuild.com' "$workdir/servers" > "$workdir/servers-no-geo" || true
+head -n "$candidate_count" "$workdir/servers-no-geo" > "$workdir/candidates"
+
+if [ ! -s "$workdir/candidates" ]; then
+  echo "Arch mirror list had no usable mirrors; using fallback mirrors." >&2
+  write_fallback_mirrors
+  exit 0
+fi
+
+while IFS= read -r line; do
+  server="${line#Server = }"
+  test_url="${server//\$repo/$repo}"
+  test_url="${test_url//\$arch/$arch}/${repo}.db"
+
+  if elapsed="$(curl -fsSL --connect-timeout 5 --max-time 12 -o /dev/null -w '%{time_total}' "$test_url")"; then
+    printf '%s\t%s\n' "$elapsed" "$line"
+  fi
+done < "$workdir/candidates" > "$workdir/speeds"
+
+if [ ! -s "$workdir/speeds" ]; then
+  echo "No Arch mirror passed the speed test; using fallback mirrors." >&2
+  write_fallback_mirrors
+  exit 0
+fi
+
+sort -n "$workdir/speeds" > "$workdir/sorted-speeds"
+head -n "$mirror_count" "$workdir/sorted-speeds" \
+  | cut -f2- > /etc/pacman.d/mirrorlist
