@@ -163,6 +163,7 @@ RUN pacman --noconfirm -Syyu \
   wlroots0.20 \
   wofi \
   # misc
+  wireguard-tools \
   v4l2loopback-dkms v4l2loopback-utils tcpdump qt6-5compat sshfs fuse3 tokei \
   && \
   \
@@ -186,7 +187,7 @@ RUN useradd -m builduser && \
   #echo "AUR is down" && \
   sudo -u builduser sh -c '\
   set -eu && \
-  for P in wlopm nvidia-580xx-dkms looking-glass nvidia-container-toolkit; do \
+  for P in amazon-ecr-credential-helper wlopm nvidia-580xx-dkms looking-glass nvidia-container-toolkit; do \
   yay -S --noconfirm $P; \
   done' && \
   rm -rf /home/builduser && rm /etc/sudoers.d/builduser && userdel builduser
